@@ -17,6 +17,7 @@ def check_gran(x, v):
         return -v
     return v
 
+
 if __name__ == '__main__':
     pygame.init()
     size = width, height = 800, 800
@@ -30,12 +31,15 @@ if __name__ == '__main__':
                 running = False
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
-            x_pos -= check_gran(x_pos, v)
+            x_pos -= v
+            if x_pos < 0:
+                x_pos += 0 + v
         if keys[pygame.K_RIGHT]:
-            print(x_pos)
-            x_pos += check_gran(x_pos, v)
-            print(x_pos)
-            #if event.type == pygame.KEYDOWN:
+            x_pos += v
+            if x_pos > 800:
+                print(x_pos)
+                x_pos = 800 - v
+            # if event.type == pygame.KEYDOWN:
             #    if event.key == pygame.K_RIGHT:
             #        x_pos = ship.movement_ship_right()
             #    elif event.key == pygame.K_LEFT:
