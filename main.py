@@ -25,6 +25,19 @@ class HealthPoint:
             heart.rect.x, heart.rect.y = 600, 20
 
 
+class Enemy:
+    def __init__(self, hp, pos_x, pos_y):
+        self.hp = hp
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.t = True
+
+    def render(self):
+        pygame.draw.circle(screen, RED, (self.pos_x, self.pos_y), 20)
+
+    def die(self):
+        self.t = False
+
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 BLUE = (0, 0, 255)
@@ -45,13 +58,6 @@ def load_image(name, colorkey=None):
     image = pygame.image.load(fullname)
     return image
 
-def check_gran(x, v):
-    if x >= 800:
-        return -v
-    if x <= 0:
-        return -v
-    return v
-
 all_sprites = pygame.sprite.Group()
 heart = pygame.sprite.Sprite()
 heart.image = load_image("heart3.png")
@@ -59,6 +65,8 @@ heart.rect = heart.image.get_rect()
 all_sprites.add(heart)
 health = 3
 hp = HealthPoint(health)
+em1 = Enemy(3, 400, 100)
+
 
 
 if __name__ == '__main__':
@@ -74,27 +82,35 @@ if __name__ == '__main__':
                 running = False
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
-            x_pos -= check_gran(x_pos, v)
+            if x_pos <= 0:
+                x_pos = 0 + v
+            x_pos -= v
         if keys[pygame.K_RIGHT]:
-            print(x_pos)
-            x_pos += check_gran(x_pos, v)
-            print(x_pos)
+            if x_pos >= 800:
+                x_pos = 800 - v
+            x_pos += v
         if keys[pygame.K_SPACE] and not timeout != 900:
             bullet = Bullet(screen, (x_pos, 700))
             bullets.append(bullet)
             timeout = 0
         pygame.draw.circle(screen, RED, (x_pos, 700), 20)
+        if em1.t != False:
+            em1.render()
         for i in bullets:
             i.render()
             i.move()
-        if hp == 3:
+            if i.coords == (em1.pos_x, em1.pos_y):
+                em1.die()
+        if hp.hp == 3:
             filename = 'heart3.png'
-        elif hp == 2:
+        elif hp.hp == 2:
             filename = 'heart2.png'
-        elif hp == 1:
+        elif hp.hp == 1:
             filename = 'heart.png'
+        heart.image = load_image(filename)
         all_sprites.draw(screen)
         hp.render()
+
         pygame.display.flip()
         if timeout != 900:
             timeout += fps
