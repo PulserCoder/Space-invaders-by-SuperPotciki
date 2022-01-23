@@ -1,7 +1,7 @@
-import random
-import sys
-import pygame
 import os
+import sys
+
+import pygame
 
 
 class Bullet:
@@ -17,12 +17,13 @@ class Bullet:
     def render(self):
         pygame.draw.circle(self.screen, 'white', self.coords, 5)
 
-class HealthPoint:
-        def __init__(self, hp):
-            self.hp = hp
 
-        def render(self):
-            heart.rect.x, heart.rect.y = 600, 20
+class HealthPoint:
+    def __init__(self, hp):
+        self.hp = hp
+
+    def render(self):
+        heart.rect.x, heart.rect.y = 600, 20
 
 
 class Enemy:
@@ -31,12 +32,20 @@ class Enemy:
         self.pos_x = pos_x
         self.pos_y = pos_y
         self.t = True
+        self.hitbox = []
+        for i in range(self.pos_x - 20, self.pos_x + 20):
+            for j in range(self.pos_y - 20, self.pos_y + 20):
+                self.hitbox.append((i, j))
 
     def render(self):
         pygame.draw.circle(screen, RED, (self.pos_x, self.pos_y), 20)
 
     def die(self):
         self.t = False
+
+    def hitbox(self):
+        pass
+
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -49,6 +58,7 @@ fps = 90
 bullets = []
 timeout = 900
 
+
 def load_image(name, colorkey=None):
     fullname = os.path.join('data', name)
     # если файл не существует, то выходим
@@ -58,6 +68,7 @@ def load_image(name, colorkey=None):
     image = pygame.image.load(fullname)
     return image
 
+
 all_sprites = pygame.sprite.Group()
 heart = pygame.sprite.Sprite()
 heart.image = load_image("heart3.png")
@@ -66,8 +77,6 @@ all_sprites.add(heart)
 health = 3
 hp = HealthPoint(health)
 em1 = Enemy(3, 400, 100)
-
-
 
 if __name__ == '__main__':
     pygame.init()
@@ -89,7 +98,7 @@ if __name__ == '__main__':
             if x_pos >= 800:
                 x_pos = 800 - v
             x_pos += v
-        if keys[pygame.K_SPACE] and not timeout != 900:
+        if keys[pygame.K_SPACE] and not timeout != 1800:
             bullet = Bullet(screen, (x_pos, 700))
             bullets.append(bullet)
             timeout = 0
@@ -99,8 +108,9 @@ if __name__ == '__main__':
         for i in bullets:
             i.render()
             i.move()
-            if i.coords == (em1.pos_x, em1.pos_y):
+            if i.coords in em1.hitbox:
                 em1.die()
+                bullets.remove(i)
         if hp.hp == 3:
             filename = 'heart3.png'
         elif hp.hp == 2:
@@ -112,7 +122,7 @@ if __name__ == '__main__':
         hp.render()
 
         pygame.display.flip()
-        if timeout != 900:
+        if timeout != 1800:
             timeout += fps
         clock.tick(fps)
     pygame.quit()
