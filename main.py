@@ -1,6 +1,6 @@
 import os
 import sys
-
+import random
 import pygame
 
 class Level:
@@ -17,9 +17,11 @@ class Level:
         self.all_sprites.add(self.heart)
         self.health = 3
         self.hp = HealthPoint(self.health)
-        self.em1 = Enemy(self.screen, 3, 400, 100, speed=2)
-        enemies.append(self.em1)
         self.ship = Ship(self.screen)
+        self.enemycooldown = self.time // self.ships
+        self.spawncounter = 0
+        em = Enemy(self.screen, 3, random.randrange(50, 750), 0, speed=2)
+        enemies.append(em)
 
     def start(self):
         pygame.init()
@@ -38,18 +40,22 @@ class Level:
             if keys[pygame.K_SPACE] and not self.timeout != 1800:
                 self.ship.shoot()
                 self.timeout = 0
-            if self.em1.t != False:
-                self.em1.render()
+            self.spawning()
             for i in bullets:
                 i.render()
                 i.move()
+                if i.pos_y > 800 or i.pos_y < 0:
+                    pass
+                    # реализовать удаление пуль, ибо лагает
                 if i.coords in self.ship.hitbox and i.vector == 1 and i.isactive:
                     self.hp.hp -= 1
                     bullets.remove(i)
                     i.isactive = False
                 for j in enemies:
+                    if j.t != False:
+                        j.render()
                     if i.coords in j.hitbox and j.t and i.vector == -1 and i.isactive:
-                        self.em1.die()
+                        j.die()
                         i.isactive = False
                         bullets.remove(i)
             for i in enemies:
@@ -78,6 +84,26 @@ class Level:
                 self.timeout += fps
             clock.tick(fps)
         pygame.quit()
+
+    def spawning(self):
+        if self.spawncounter != self.enemycooldown * 100:
+            self.spawncounter += 1
+            return
+        else:
+            self.spawncounter = 0
+        a = True
+        while a:
+            pos_x = random.randrange(50, 750)
+            for i in enemies:
+                if pos_x in i.hitbox:
+                    a = True
+                else:
+                    a = False
+            if not a:
+                break
+        em = Enemy(self.screen, 3, pos_x, 0, speed=2)
+        enemies.append(em)
+
 
 
 class Ship:
