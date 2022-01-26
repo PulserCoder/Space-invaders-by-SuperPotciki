@@ -44,9 +44,9 @@ class Level:
             for i in bullets:
                 i.render()
                 i.move()
-                if i.pos_y > 800 or i.pos_y < 0:
-                    pass
-                    # реализовать удаление пуль, ибо лагает
+                if i.coords[1] > 800 or i.coords[1] < 0:
+                    i.isactive = False
+                    bullets.remove(i)
                 if i.coords in self.ship.hitbox and i.vector == 1 and i.isactive:
                     self.hp.hp -= 1
                     bullets.remove(i)
@@ -140,6 +140,7 @@ class Ship:
 class Bullet:
     def __init__(self, screen, coords, speed=3, vector=-1):
         self.isactive = True
+        self.pos_y = coords[1]
         self.coords = coords
         self.vector = vector
         self.speed = speed
