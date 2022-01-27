@@ -3,6 +3,42 @@ import sys
 import random
 import pygame
 
+class MainMenu:
+    def __init__(self):
+        pygame.init()
+        size = 800, 800
+        self.screen = pygame.display.set_mode(size)
+        self.screen.fill(WHITE)
+        logo = load_image('logo.png')
+        log_rect = logo.get_rect(
+            bottomright=(575, 300))
+        self.screen.blit(logo, log_rect)
+        font = pygame.font.Font(None, 50)
+        text = font.render("PLEASE PRESS BUTTON 1-3", True, (0, 0, 0))
+        self.screen.blit(text, (160, 700))
+
+
+    def start(self):
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_1]:
+                game = Level(180, 50)
+                game.start()
+            if keys[pygame.K_2]:
+                game = Level(180, 50)
+                game.start()
+            if keys[pygame.K_3]:
+                game = Level(180, 50)
+                game.start()
+            pygame.display.flip()
+
+
+
+
 class Level:
     def __init__(self, time, ships):
         self.time = time
@@ -44,7 +80,7 @@ class Level:
             for i in bullets:
                 i.render()
                 i.move()
-                if i.coords[1] > 800 or i.coords[1] < 0:
+                if i.coords[1] > 800 or i.coords[1] <= 0:
                     i.isactive = False
                     bullets.remove(i)
                 if i.coords in self.ship.hitbox and i.vector == 1 and i.isactive:
@@ -138,10 +174,12 @@ class Ship:
 
 
 class Bullet:
-    def __init__(self, screen, coords, speed=3, vector=-1):
+    def __init__(self, screen, coords, speed=6, vector=-1):
         self.isactive = True
         self.pos_y = coords[1]
         self.coords = coords
+        self.pos_x = coords[0]
+        self.pos_y = coords[1]
         self.vector = vector
         self.speed = speed
         self.screen = screen
@@ -229,5 +267,5 @@ def load_image(name, colorkey=None):
     return image
 
 
-game = Level(180, 50)
-game.start()
+main_body = MainMenu()
+main_body.start()
