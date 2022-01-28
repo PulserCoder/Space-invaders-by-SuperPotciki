@@ -105,6 +105,7 @@ class Level:
                         j.die()
                         i.isactive = False
                         bullets.remove(i)
+                        all_sprites.remove(j.enemy)
             for i in enemies:
                 if i.t:
                     i.cooldownupdate()
@@ -216,6 +217,10 @@ class HealthPoint:
 
 class Enemy:
     def __init__(self, screen, hp, pos_x, pos_y, speed=4, vector=1, shootrate=5400):
+        enemy_image = load_image('enemy.png')
+        self.enemy = pygame.sprite.Sprite(all_sprites)
+        self.enemy.image = enemy_image
+        self.enemy.rect = (self.enemy.image.get_rect())
         self.hp = hp
         self.screen = screen
         self.shootrate = shootrate
@@ -238,8 +243,8 @@ class Enemy:
             self.shoot()
 
     def render(self):
-        enemy.rect.x = self.pos_x - 20
-        enemy.rect.y = self.pos_y
+        self.enemy.rect.x = self.pos_x - 20
+        self.enemy.rect.y = self.pos_y
 
     def die(self):
         self.t = False
@@ -288,10 +293,6 @@ ship = pygame.sprite.Sprite(all_sprites)
 ship.image = ship_image
 ship.rect = (ship.image.get_rect())
 
-enemy_image = load_image('enemy.png')
-enemy = pygame.sprite.Sprite(all_sprites)
-enemy.image = enemy_image
-enemy.rect = (enemy.image.get_rect())
 
 
 
