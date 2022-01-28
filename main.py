@@ -48,13 +48,12 @@ class Level:
         self.leveltime = 0
         self.won = False
         self.ships = ships
-        self.all_sprites = pygame.sprite.Group()
         size = width, height = 800, 800
         self.screen = pygame.display.set_mode(size)
         self.heart = pygame.sprite.Sprite()
         self.heart.image = load_image("heart3.png")
         self.heart.rect = self.heart.image.get_rect()
-        self.all_sprites.add(self.heart)
+        all_sprites.add(self.heart)
         self.health = 3
         self.hp = HealthPoint(self.health)
         self.ship = Ship(self.screen)
@@ -123,7 +122,7 @@ class Level:
                 filename = 'heart.png'
             self.heart.image = load_image(filename)
             self.ship.render()
-            self.all_sprites.draw(self.screen)
+            all_sprites.draw(self.screen)
             self.hp.render()
             self.heart.rect.x, self.heart.rect.y = 600, 20
             pygame.display.flip()
@@ -137,6 +136,8 @@ class Level:
 
     def clean(self):
         bullets.clear()
+        for i in enemies:
+            all_sprites.remove(i.enemy)
         enemies.clear()
 
 
@@ -278,6 +279,7 @@ x_pos = 400
 fps = 90
 left = -5
 right = 5
+all_sprites = pygame.sprite.Group()
 bullets = []
 enemies = []
 
