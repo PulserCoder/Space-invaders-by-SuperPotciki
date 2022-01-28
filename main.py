@@ -76,10 +76,9 @@ class Level:
                     running = False
             keys = pygame.key.get_pressed()
             if self.leveltime // 900 == 60:
-                self.won = True
-                running = False
+                break
             if self.hp.hp == 0:
-                running = False
+                break
             if keys[pygame.K_LEFT]:
                 self.ship.move(left)
             if keys[pygame.K_RIGHT]:
@@ -132,8 +131,13 @@ class Level:
                 self.timeout += fps
             clock.tick(fps)
         pygame.quit()
+        self.clean()
         main_body.__init__()
         main_body.start()
+
+    def clean(self):
+        bullets.clear()
+        enemies.clear()
 
 
     def spawning(self):
