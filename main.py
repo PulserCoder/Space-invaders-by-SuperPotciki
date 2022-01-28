@@ -42,6 +42,7 @@ class MainMenu:
 
 class Level:
     def __init__(self, time, ships):
+        global main_body
         self.time = time
         self.timeout = 900
         self.leveltime = 0
@@ -129,7 +130,7 @@ class Level:
                 self.timeout += fps
             clock.tick(fps)
         pygame.quit()
-        main_body = MainMenu()
+        main_body.__init__()
         main_body.start()
 
 
@@ -171,7 +172,7 @@ class Ship:
             self.hitboxupdate()
 
     def render(self):
-        ship.rect.x = self.pos_x
+        ship.rect.x = self.pos_x - 20
         ship.rect.y = self.pos_y
 
     def shoot(self):
