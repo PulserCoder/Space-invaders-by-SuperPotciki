@@ -8,7 +8,7 @@ class MainMenu:
         pygame.init()
         size = 800, 800
         self.screen = pygame.display.set_mode(size)
-        self.screen.fill(WHITE)
+        self.screen.fill('WHITE')
         logo = load_image('logo.png')
         log_rect = logo.get_rect(
             bottomright=(575, 300))
@@ -43,6 +43,8 @@ class Level:
     def __init__(self, time, ships):
         self.time = time
         self.timeout = 900
+        self.leveltime = 0
+        self.won = False
         self.ships = ships
         self.all_sprites = pygame.sprite.Group()
         size = width, height = 800, 800
@@ -69,6 +71,11 @@ class Level:
                 if event.type == pygame.QUIT:
                     running = False
             keys = pygame.key.get_pressed()
+            if self.leveltime // 900 == 60:
+                self.won = True
+                running = False
+            if self.hp.hp == 0:
+                running = False
             if keys[pygame.K_LEFT]:
                 self.ship.move(left)
             if keys[pygame.K_RIGHT]:
@@ -120,6 +127,8 @@ class Level:
                 self.timeout += fps
             clock.tick(fps)
         pygame.quit()
+        main_body = MainMenu()
+        main_body.start()
 
     def spawning(self):
         if self.spawncounter != self.enemycooldown * 100:
