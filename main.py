@@ -69,6 +69,7 @@ class Level:
         running = True
         while running:
             self.screen.fill(GREEN)
+            self.screen.blit(load_image('phone.jpg'), (0, 0))
             all_sprites.draw(self.screen)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
