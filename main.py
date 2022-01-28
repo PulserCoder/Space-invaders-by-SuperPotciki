@@ -244,7 +244,7 @@ class Enemy:
 
     def render(self):
         self.enemy.rect.x = self.pos_x - 20
-        self.enemy.rect.y = self.pos_y
+        self.enemy.rect.y = self.pos_y - 30
 
     def die(self):
         self.t = False
