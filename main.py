@@ -28,6 +28,7 @@ class MainMenu:
             if keys[pygame.K_1]:
                 game = Level(180, 50)
                 game.start()
+                print(1)
             if keys[pygame.K_2]:
                 game = Level(180, 50)
                 game.start()
@@ -67,6 +68,7 @@ class Level:
         running = True
         while running:
             self.screen.fill(GREEN)
+            all_sprites.draw(self.screen)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
@@ -130,6 +132,7 @@ class Level:
         main_body = MainMenu()
         main_body.start()
 
+
     def spawning(self):
         if self.spawncounter != self.enemycooldown * 100:
             self.spawncounter += 1
@@ -168,7 +171,8 @@ class Ship:
             self.hitboxupdate()
 
     def render(self):
-        pygame.draw.circle(self.screen, RED, (self.pos_x, self.pos_y), 20)
+        ship.rect.x = self.pos_x
+        ship.rect.y = self.pos_y
 
     def shoot(self):
         bullet = Bullet(self.screen, (self.pos_x, self.pos_y))
@@ -274,6 +278,12 @@ def load_image(name, colorkey=None):
         sys.exit()
     image = pygame.image.load(fullname)
     return image
+
+all_sprites = pygame.sprite.Group()
+ship_image = load_image('ship.png')
+ship = pygame.sprite.Sprite(all_sprites)
+ship.image = ship_image
+ship.rect = ship.image.get_rect()
 
 
 main_body = MainMenu()
