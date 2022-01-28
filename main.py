@@ -238,7 +238,8 @@ class Enemy:
             self.shoot()
 
     def render(self):
-        pygame.draw.circle(self.screen, RED, (self.pos_x, self.pos_y), 20)
+        enemy.rect.x = self.pos_x - 20
+        enemy.rect.y = self.pos_y
 
     def die(self):
         self.t = False
@@ -285,7 +286,13 @@ all_sprites = pygame.sprite.Group()
 ship_image = load_image('ship.png')
 ship = pygame.sprite.Sprite(all_sprites)
 ship.image = ship_image
-ship.rect = ship.image.get_rect()
+ship.rect = (ship.image.get_rect())
+
+enemy_image = load_image('enemy.png')
+enemy = pygame.sprite.Sprite(all_sprites)
+enemy.image = enemy_image
+enemy.rect = (enemy.image.get_rect())
+
 
 
 main_body = MainMenu()
