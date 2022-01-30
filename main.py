@@ -45,7 +45,7 @@ class MainMenu:
 
 
 class Level:
-    def __init__(self, time, ships):
+    def __init__(self, time, ships, boss=False):
         global main_body
         self.time = time
         self.timeout = 900
@@ -78,7 +78,7 @@ class Level:
                 if event.type == pygame.QUIT:
                     running = False
             keys = pygame.key.get_pressed()
-            if self.leveltime // 900 == 60:
+            if (self.time - (self.leveltime // 9000)) == 0:
                 break
             if self.hp.hp == 0:
                 break
@@ -124,6 +124,9 @@ class Level:
                 filename = 'heart2.png'
             elif self.hp.hp == 1:
                 filename = 'heart.png'
+            font = pygame.font.Font(None, 50)
+            text = font.render(str(self.time - (self.leveltime // 9000)), True, ('WHITE'))
+            self.screen.blit(text, (20, 20))
             self.heart.image = load_image(filename)
             self.ship.render()
             all_sprites.draw(self.screen)
@@ -132,6 +135,7 @@ class Level:
             pygame.display.flip()
             if self.timeout != 1800:
                 self.timeout += fps
+            self.leveltime += fps
             clock.tick(fps)
         pygame.quit()
         self.clean()
@@ -272,6 +276,19 @@ class Enemy:
         bullet = Bullet(self.screen, (self.pos_x, self.pos_y), 3, 1)
         bullets.append(bullet)
 
+class Boss(Enemy):
+    def __init__(self, screen, hp, pos_x, pos_y):
+        super().__init__(screen, hp, pos_x, pos_y, speed=1, shootrate=21600)
+        self.hp = 25
+
+    def shoot(self):
+        bullet1 = Bullet(self.screen, (self.pos_x - 30, self.pos_y), 3, 1)
+        bullet2 = Bullet(self.screen, (self.pos_x, self.pos_y), 3, 1)
+        bullet3 = Bullet(self.screen, (self.pos_x + 30, self.pos_y), 3, 1)
+        bullets.append(bullet1)
+        bullets.append(bullet2)
+        bullets.append(bullet3)
+
 
 
 BLACK = (0, 0, 0)
@@ -290,7 +307,6 @@ enemies = []
 
 def load_image(name, colorkey=None):
     fullname = os.path.join('data', name)
-    # если файл не существует, то выходим
     if not os.path.isfile(fullname):
         print(f"Файл с изображением '{fullname}' не найден")
         sys.exit()
