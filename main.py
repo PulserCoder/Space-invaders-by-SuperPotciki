@@ -51,11 +51,15 @@ class Level:
         self.heart.image = load_image("heart3.png")
         self.heart.rect = self.heart.image.get_rect()
         all_sprites.add(self.heart)
-        self.health = 3
+        self.health = 20
         self.hp = HealthPoint(self.health)
         self.ship = Ship(self.screen)
         self.enemycooldown = self.time // self.ships
         self.spawncounter = 0
+        self.isboss = boss
+        self.bossalive = False
+        self.bosscooldown = 50
+        self.bosscounter = 0
         em = Enemy(self.screen, 3, random.randrange(50, 750), 0, speed=2)
         enemies.append(em)
 
@@ -83,6 +87,11 @@ class Level:
                 self.ship.shoot()
                 self.timeout = 0
             self.spawning()
+            if self.isboss and (self.time - (self.leveltime // 9000)) == self.time // 2:
+                self.boss = Boss(self.screen, 3, 400, 0)
+                self.isboss = False
+                self.bossalive = True
+                enemies .append((self.boss))
             for i in bullets:
                 i.render()
                 i.move()
@@ -100,18 +109,34 @@ class Level:
                         j.die()
                         i.isactive = False
                         bullets.remove(i)
-                        all_sprites.remove(j.enemy)
+                        if self.bossalive == False:
+                            all_sprites.remove(j.enemy)
+                        else:
+                            if j != self.boss or self.boss.t == False:
+                                all_sprites.remove(j.enemy)
             for i in enemies:
                 if i.t:
                     i.cooldownupdate()
-                if i.t:
+                if not self.bossalive:
                     i.move()
                     i.hitboxupdate()
+                if self.bossalive:
+                    if i.t and not i.isboss:
+                        if i.isboss:
+                            print('БОСС ДВИГАЕТСЯ, КУЛДАУН', self.bosscounter)
+                        i.move()
+                        i.hitboxupdate()
+                    if i.t and i.isboss:
+                        if self.bosscounter != self.bosscooldown:
+                            self.bosscounter += 1
+                        else:
+                            i.move()
+                            i.hitboxupdate()
                 if i.pos_y > 830:
                     i.vector = 0
                     enemies.remove(i)
                     self.hp.hp -= 1
-            if self.hp.hp == 3:
+            if self.hp.hp >= 3:
                 filename = 'heart3.png'
             elif self.hp.hp == 2:
                 filename = 'heart2.png'
@@ -141,6 +166,7 @@ class Level:
             all_sprites.remove(i.enemy)
         enemies.clear()
 
+
     def spawning(self):
         if self.spawncounter != self.enemycooldown * 100:
             self.spawncounter += 1
@@ -159,6 +185,7 @@ class Level:
                 break
         em = Enemy(self.screen, 3, pos_x, 0, speed=2)
         enemies.append(em)
+
 
 
 class Ship:
@@ -192,6 +219,7 @@ class Ship:
                 self.hitbox.append((i, j))
 
 
+
 class Bullet:
     def __init__(self, screen, coords, speed=6, vector=-1):
         self.isactive = True
@@ -219,12 +247,13 @@ class HealthPoint:
 
 
 class Enemy:
-    def __init__(self, screen, hp, pos_x, pos_y, speed=4, vector=1, shootrate=5400):
+    def __init__(self, screen, hp, pos_x, pos_y, speed=4, vector=1, shootrate=5400, isboss=False):
         enemy_image = load_image('enemy.png')
         self.enemy = pygame.sprite.Sprite(all_sprites)
         self.enemy.image = enemy_image
         self.enemy.rect = (self.enemy.image.get_rect())
         self.hp = hp
+        self.isboss = isboss
         self.screen = screen
         self.shootrate = shootrate
         self.cooldown = 0
@@ -266,11 +295,16 @@ class Enemy:
         bullet = Bullet(self.screen, (self.pos_x, self.pos_y), 3, 1)
         bullets.append(bullet)
 
-
 class Boss(Enemy):
-    def __init__(self, screen, hp, pos_x, pos_y):
-        super().__init__(screen, hp, pos_x, pos_y, speed=1, shootrate=21600)
+    def __init__(self, screen, hp, pos_x, pos_y, speed=1, shootrate=21600, isboss=True):
+        super().__init__(screen, hp, pos_x, pos_y, speed=1, shootrate=21600, isboss=True)
         self.hp = 25
+        self.cooldown = 2
+        self.countmover = 0
+        enemy_image = load_image('boss.png')
+        self.enemy = pygame.sprite.Sprite(all_sprites)
+        self.enemy.image = enemy_image
+        self.enemy.rect = (self.enemy.image.get_rect())
 
     def shoot(self):
         bullet1 = Bullet(self.screen, (self.pos_x - 30, self.pos_y), 3, 1)
@@ -279,6 +313,23 @@ class Boss(Enemy):
         bullets.append(bullet1)
         bullets.append(bullet2)
         bullets.append(bullet3)
+
+    def move(self):
+        self.pos_y += self.speed * self.vector
+        print(self.pos_y)
+
+    def die(self):
+        if self.hp != 1:
+            self.hp -= 1
+        else:
+            self.t = False
+
+    def hitboxupdate(self):
+        self.hitbox = []
+        for i in range(self.pos_x - 40, self.pos_x + 40):
+            for j in range(self.pos_y - 40, self.pos_y + 40):
+                self.hitbox.append((i, j))
+
 
 
 BLACK = (0, 0, 0)
@@ -304,11 +355,15 @@ def load_image(name, colorkey=None):
     return image
 
 
+
+
 all_sprites = pygame.sprite.Group()
 ship_image = load_image('ship.png')
 ship = pygame.sprite.Sprite(all_sprites)
 ship.image = ship_image
 ship.rect = (ship.image.get_rect())
+
+
 
 main_body = MainMenu()
 main_body.start()
