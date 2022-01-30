@@ -37,7 +37,7 @@ class MainMenu:
                 game = Level(180, 50)
                 game.start()
             if keys[pygame.K_3]:
-                game = Level(40, 20, boss=True)
+                game = Level(20, 1, boss=True)
                 game.start()
             pygame.display.flip()
 
@@ -98,7 +98,7 @@ class Level:
                 self.boss = Boss(self.screen, 3, 400, 0)
                 self.isboss = False
                 self.bossalive = True
-                enemies .append((self.boss))
+                enemies.append((self.boss))
             for i in bullets:
                 i.render()
                 i.move()
@@ -129,8 +129,6 @@ class Level:
                     i.hitboxupdate()
                 if self.bossalive:
                     if i.t and not i.isboss:
-                        if i.isboss:
-                            print('БОСС ДВИГАЕТСЯ, КУЛДАУН', self.bosscounter)
                         i.move()
                         i.hitboxupdate()
                     if i.t and i.isboss:
@@ -254,8 +252,8 @@ class HealthPoint:
 
 
 class Enemy:
-    def __init__(self, screen, hp, pos_x, pos_y, speed=4, vector=1, shootrate=5400, isboss=False):
-        enemy_image = load_image('enemy.png')
+    def __init__(self, screen, hp, pos_x, pos_y, speed=4, vector=1, shootrate=5400, isboss=False, model='enemy.png'):
+        enemy_image = load_image(model)
         self.enemy = pygame.sprite.Sprite(all_sprites)
         self.enemy.image = enemy_image
         self.enemy.rect = (self.enemy.image.get_rect())
@@ -303,15 +301,11 @@ class Enemy:
         bullets.append(bullet)
 
 class Boss(Enemy):
-    def __init__(self, screen, hp, pos_x, pos_y, speed=1, shootrate=21600, isboss=True):
-        super().__init__(screen, hp, pos_x, pos_y, speed=1, shootrate=21600, isboss=True)
+    def __init__(self, screen, hp, pos_x, pos_y):
+        super().__init__(screen, hp, pos_x, pos_y, speed=1, shootrate=21600, isboss=True, model='boss.png')
         self.hp = 25
         self.cooldown = 2
         self.countmover = 0
-        enemy_image = load_image('boss.png')
-        self.enemy = pygame.sprite.Sprite(all_sprites)
-        self.enemy.image = enemy_image
-        self.enemy.rect = (self.enemy.image.get_rect())
 
     def shoot(self):
         bullet1 = Bullet(self.screen, (self.pos_x - 30, self.pos_y), 3, 1)
@@ -336,6 +330,9 @@ class Boss(Enemy):
             for j in range(self.pos_y - 40, self.pos_y + 40):
                 self.hitbox.append((i, j))
 
+    def render(self):
+        self.enemy.rect.x = self.pos_x - 40
+        self.enemy.rect.y = self.pos_y - 30
 
 
 BLACK = (0, 0, 0)
