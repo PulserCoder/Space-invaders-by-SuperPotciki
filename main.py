@@ -2,6 +2,7 @@ import os
 import sys
 import random
 import pygame
+import time
 
 class MainMenu:
     def __init__(self):
@@ -26,6 +27,9 @@ class MainMenu:
                     running = False
             keys = pygame.key.get_pressed()
             if keys[pygame.K_1]:
+                self.screen.blit(load_image('listening.png'), (0, 0))
+                pygame.display.flip()
+                time.sleep(5)
                 game = Level(180, 50)
                 game.start()
                 print(1)
@@ -209,7 +213,7 @@ class Bullet:
         self.coords = (self.coords[0], self.coords[1] + self.vector * self.speed)
 
     def render(self):
-        pygame.draw.circle(self.screen, 'white', self.coords, 5)
+        pygame.draw.circle(self.screen, 'white', self.coords, 3)
 
 
 class HealthPoint:
@@ -293,12 +297,14 @@ def load_image(name, colorkey=None):
     image = pygame.image.load(fullname)
     return image
 
+
+
+
 all_sprites = pygame.sprite.Group()
 ship_image = load_image('ship.png')
 ship = pygame.sprite.Sprite(all_sprites)
 ship.image = ship_image
 ship.rect = (ship.image.get_rect())
-
 
 
 
