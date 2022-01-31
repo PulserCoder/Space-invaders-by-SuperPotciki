@@ -47,14 +47,14 @@ class MainMenu:
                         self.screen.blit(load_image('listening.png'), (0, 0))
                         pygame.display.flip()
                         time.sleep(5)
-                        game = Level(20, 10)
+                        game = Level(60, 20)
                         game.start()
                         print(1)
                     if 425 < y and y < 705 and 300 < x and x < 500 and res[0] >= 2:
-                        game = Level(180, 50)
+                        game = Level(100, 40)
                         game.start()
                     if 425 < y and y < 705 and 530 < x and x < 738 and res[0] >= 3:
-                        game = Level(40, 10, boss=True)
+                        game = Level(100, 45 , boss=True)
                         game.start()
             pygame.display.flip()
 
@@ -74,7 +74,7 @@ class Level:
         self.heart.image = load_image("heart3.png")
         self.heart.rect = self.heart.image.get_rect()
         all_sprites.add(self.heart)
-        self.health = 20
+        self.health = 3
         self.hp = HealthPoint(self.health)
         self.ship = Ship(self.screen)
         self.enemycooldown = self.time // self.ships
