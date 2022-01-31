@@ -91,6 +91,7 @@ class Level:
         clock = pygame.time.Clock()
         sound = pygame.mixer.Sound('SoundTrack_1.mp3')
         sound2 = pygame.mixer.Sound('boss.mp3')
+        sound3 = pygame.mixer.Sound('beat.mp3')
         sound.play()
         running = True
         while running:
@@ -121,7 +122,7 @@ class Level:
             if keys[pygame.K_SPACE] and not self.timeout != 1800:
                 self.ship.shoot()
                 self.timeout = 0
-            self.spawning()
+            self.spawning() 
             if self.isboss and (self.time - (self.leveltime // 9000)) == self.time // 2:
                 self.boss = Boss(self.screen, 3, 400, 0)
                 self.isboss = False
@@ -136,6 +137,7 @@ class Level:
                     bullets.remove(i)
                 if i.coords in self.ship.hitbox and i.vector == 1 and i.isactive:
                     self.hp.hp -= 1
+                    sound3.play()
                     bullets.remove(i)
                     i.isactive = False
                 for j in enemies:
