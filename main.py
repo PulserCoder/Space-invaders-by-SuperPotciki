@@ -1,10 +1,10 @@
 import os
-import sys
-import random
 import pygame
+import random
+import sqlite3
+import sys
 import time
 from uuid import getnode
-import sqlite3
 
 
 class MainMenu:
@@ -15,7 +15,7 @@ class MainMenu:
         self.mac = getnode()
         db = sqlite3.connect('base.db')
         cur = db.cursor()
-        res = cur.execute("""SELECT * FROM users WHERE mac=?""", (self.mac, )).fetchone()
+        res = cur.execute("""SELECT * FROM users WHERE mac=?""", (self.mac,)).fetchone()
         if res is None:
             cur.execute("INSERT INTO users(mac, level) VALUES (? , ?)", (self.mac, 1))
             db.commit()
@@ -34,7 +34,7 @@ class MainMenu:
         running = True
         db = sqlite3.connect('base.db')
         cur = db.cursor()
-        res = cur.execute("""SELECT level FROM users WHERE mac=?""", (self.mac, )).fetchone()
+        res = cur.execute("""SELECT level FROM users WHERE mac=?""", (self.mac,)).fetchone()
         db.close()
         while running:
             for event in pygame.event.get():
@@ -47,14 +47,14 @@ class MainMenu:
                         self.screen.blit(load_image('listening.png'), (0, 0))
                         pygame.display.flip()
                         time.sleep(5)
-                        game = Level(20, 10)
+                        game = Level(60, 20)
                         game.start()
                         print(1)
                     if 425 < y and y < 705 and 300 < x and x < 500 and res[0] >= 2:
-                        game = Level(180, 50)
+                        game = Level(100, 40)
                         game.start()
                     if 425 < y and y < 705 and 530 < x and x < 738 and res[0] >= 3:
-                        game = Level(40, 10, boss=True)
+                        game = Level(100, 45, boss=True)
                         game.start()
             pygame.display.flip()
 
@@ -74,7 +74,7 @@ class Level:
         self.heart.image = load_image("heart3.png")
         self.heart.rect = self.heart.image.get_rect()
         all_sprites.add(self.heart)
-        self.health = 20
+        self.health = 3
         self.hp = HealthPoint(self.health)
         self.ship = Ship(self.screen)
         self.enemycooldown = self.time // self.ships
@@ -105,7 +105,7 @@ class Level:
             if (self.time - (self.leveltime // 9000)) == 0:
                 db = sqlite3.connect('base.db')
                 cur = db.cursor()
-                level = cur.execute("""SELECT level FROM users WHERE mac = ?""", (self.mac, )).fetchone()[0]
+                level = cur.execute("""SELECT level FROM users WHERE mac = ?""", (self.mac,)).fetchone()[0]
                 cur.execute("""
                 UPDATE users
                 SET level = ?
@@ -122,7 +122,7 @@ class Level:
             if keys[pygame.K_SPACE] and not self.timeout != 1800:
                 self.ship.shoot()
                 self.timeout = 0
-            self.spawning() 
+            self.spawning()
             if self.isboss and (self.time - (self.leveltime // 9000)) == self.time // 2:
                 self.boss = Boss(self.screen, 3, 400, 0)
                 self.isboss = False
@@ -204,7 +204,6 @@ class Level:
             all_sprites.remove(i.enemy)
         enemies.clear()
 
-
     def spawning(self):
         if self.spawncounter != self.enemycooldown * 100:
             self.spawncounter += 1
@@ -223,7 +222,6 @@ class Level:
                 break
         em = Enemy(self.screen, 3, pos_x, 0, speed=2)
         enemies.append(em)
-
 
 
 class Ship:
@@ -255,7 +253,6 @@ class Ship:
         for i in range(self.pos_x - 20, self.pos_x + 20):
             for j in range(self.pos_y - 20, self.pos_y + 20):
                 self.hitbox.append((i, j))
-
 
 
 class Bullet:
@@ -333,6 +330,7 @@ class Enemy:
         bullet = Bullet(self.screen, (self.pos_x, self.pos_y), 3, 1)
         bullets.append(bullet)
 
+
 class Boss(Enemy):
     def __init__(self, screen, hp, pos_x, pos_y, speed=1, shootrate=21600, isboss=True):
         super().__init__(screen, hp, pos_x, pos_y, speed=1, shootrate=9000, isboss=True)
@@ -371,7 +369,6 @@ class Boss(Enemy):
                 self.hitbox.append((i, j))
 
 
-
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 BLUE = (0, 0, 255)
@@ -395,15 +392,13 @@ def load_image(name, colorkey=None):
     return image
 
 
-
-
 all_sprites = pygame.sprite.Group()
 ship_image = load_image('ship.png')
 ship = pygame.sprite.Sprite(all_sprites)
 ship.image = ship_image
 ship.rect = (ship.image.get_rect())
 
-
-
 main_body = MainMenu()
 main_body.start()
+
+# print('# Владмир Михайлович поставьте много баллов')
