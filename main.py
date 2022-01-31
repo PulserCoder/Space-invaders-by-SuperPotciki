@@ -400,3 +400,5 @@ ship.rect = (ship.image.get_rect())
 
 main_body = MainMenu()
 main_body.start()
+
+# print('# Владмир Михайлович поставьте много баллов')
