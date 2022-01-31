@@ -3,6 +3,8 @@ import sys
 import random
 import pygame
 import time
+from uuid import getnode
+import sqlite3
 
 
 class MainMenu:
@@ -10,10 +12,30 @@ class MainMenu:
         pygame.init()
         size = 800, 800
         self.screen = pygame.display.set_mode(size)
-        self.screen.blit(load_image('menu.jpg'), (0, 0))
+        self.mac = getnode()
+        db = sqlite3.connect('base.db')
+        cur = db.cursor()
+        res = cur.execute("""SELECT * FROM users WHERE mac=?""", (self.mac, )).fetchone()
+        if res is None:
+            cur.execute("INSERT INTO users(mac, level) VALUES (? , ?)", (self.mac, 1))
+            db.commit()
+            db.close()
+            self.screen.blit(load_image('menu_1.jpg'), (0, 0))
+        else:
+            db.close()
+            if res[1] == 1:
+                self.screen.blit(load_image('menu_1.jpg'), (0, 0))
+            if res[1] == 2:
+                self.screen.blit(load_image('menu_2.jpg'), (0, 0))
+            if res[1] >= 3:
+                self.screen.blit(load_image('menu.jpg'), (0, 0))
 
     def start(self):
         running = True
+        db = sqlite3.connect('base.db')
+        cur = db.cursor()
+        res = cur.execute("""SELECT level FROM users WHERE mac=?""", (self.mac, )).fetchone()
+        db.close()
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -21,18 +43,18 @@ class MainMenu:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     x, y = event.pos
                     print(x, y)
-                    if 425 < y and y < 705 and 60 < x and x < 265:
+                    if 425 < y and y < 705 and 60 < x and x < 265 and res[0] >= 1:
                         self.screen.blit(load_image('listening.png'), (0, 0))
                         pygame.display.flip()
                         time.sleep(5)
-                        game = Level(180, 50)
+                        game = Level(20, 10)
                         game.start()
                         print(1)
-                    if 425 < y and y < 705 and 300 < x and x < 500:
+                    if 425 < y and y < 705 and 300 < x and x < 500 and res[0] >= 2:
                         game = Level(180, 50)
                         game.start()
-                    if 425 < y and y < 705 and 530 < x and x < 705:
-                        game = Level(20, 10, boss=True)
+                    if 425 < y and y < 705 and 530 < x and x < 738 and res[0] >= 3:
+                        game = Level(40, 10, boss=True)
                         game.start()
             pygame.display.flip()
 
@@ -41,6 +63,7 @@ class Level:
     def __init__(self, time, ships, boss=False):
         global main_body
         self.time = time
+        self.mac = getnode()
         self.timeout = 900
         self.leveltime = 0
         self.won = False
@@ -66,6 +89,9 @@ class Level:
     def start(self):
         pygame.init()
         clock = pygame.time.Clock()
+        sound = pygame.mixer.Sound('SoundTrack_1.mp3')
+        sound2 = pygame.mixer.Sound('boss.mp3')
+        sound.play()
         running = True
         while running:
             self.screen.fill(GREEN)
@@ -76,6 +102,15 @@ class Level:
                     running = False
             keys = pygame.key.get_pressed()
             if (self.time - (self.leveltime // 9000)) == 0:
+                db = sqlite3.connect('base.db')
+                cur = db.cursor()
+                level = cur.execute("""SELECT level FROM users WHERE mac = ?""", (self.mac, )).fetchone()[0]
+                cur.execute("""
+                UPDATE users
+                SET level = ?
+                WHERE mac = ?
+                """, (level + 1, self.mac))
+                db.commit()
                 break
             if self.hp.hp == 0:
                 break
@@ -91,7 +126,8 @@ class Level:
                 self.boss = Boss(self.screen, 3, 400, 0)
                 self.isboss = False
                 self.bossalive = True
-                enemies .append((self.boss))
+                enemies.append((self.boss))
+                sound2.play()
             for i in bullets:
                 i.render()
                 i.move()
@@ -297,7 +333,7 @@ class Enemy:
 
 class Boss(Enemy):
     def __init__(self, screen, hp, pos_x, pos_y, speed=1, shootrate=21600, isboss=True):
-        super().__init__(screen, hp, pos_x, pos_y, speed=1, shootrate=21600, isboss=True)
+        super().__init__(screen, hp, pos_x, pos_y, speed=1, shootrate=9000, isboss=True)
         self.hp = 25
         self.cooldown = 2
         self.countmover = 0
@@ -315,8 +351,10 @@ class Boss(Enemy):
         bullets.append(bullet3)
 
     def move(self):
-        self.pos_y += self.speed * self.vector
-        print(self.pos_y)
+        if self.pos_y <= 300:
+            self.pos_y += self.speed * self.vector
+        else:
+            pass
 
     def die(self):
         if self.hp != 1:
